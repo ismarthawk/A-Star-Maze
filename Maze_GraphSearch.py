@@ -1,16 +1,23 @@
 #graph Search
-
+# pyamaze is a module that is used to create a maze and to operate an agent on the maze.
 from pyamaze import maze, agent
+# heapq is a module which is used to implement a priority queue.
 import heapq
 
+# To calculate the heuristic value of the node.h(n)
+# Taking the Manhattan distance to be the heuristic value.
 def heuristic(node):
     return abs(node[0]-1) + abs(node[1]-1)
 
-
+# This is the main function which is used to implement the A* algorithm.
 def solve(maze: maze):
+    # As this is a graph search we need to maintain a closed set i.e explored list.(essentially a set)
     explored = set()
+    # Frontier is the priority queue.
     frontier = []
     start = (maze.rows, maze.cols)
+    # The start nodes' adjacent/child nodes are added to the frontier.
+    # We maintain the path,current node.
     for direction in "NEWS":
         if maze.maze_map[start][direction]:
             if direction == 'E':
@@ -23,6 +30,8 @@ def solve(maze: maze):
                 child = (start[0]+1, start[1])
             heapq.heappush(frontier, (heuristic(
                 child)+1, child, [start, child]))
+
+    # While the frontier is not empty the following steps are performed.
 
     while frontier:
         fun, node, path = heapq.heappop(frontier)
@@ -40,17 +49,21 @@ def solve(maze: maze):
                 if direction == 'S':
                     child = (node[0]+1, node[1])
                 if child not in explored:
+                    # if the child node is already explored then not added to the frontier.
                     heapq.heappush(frontier, (heuristic(child) +len(path)+1, child, path+[child]))
-
+    # if the path is not found then the path is returned as None.
     return None
 
 
 if __name__ == "__main__":
+    # Takes the size of the maze as input.
     n = int(input("Enter the size of the maze: "))
+    # creating a maze of size n*n.
     m = maze(n, n)
     m.CreateMaze(theme='light')
     a = agent(m,shape='arrow', footprints=True)
     result = solve(m)
+    # This solves the maze and displays the path.
     print(result)
     if result:
         d = dict()
@@ -59,6 +72,7 @@ if __name__ == "__main__":
                 break
             d[result[i]] = result[i+1]
         print(d.items())
+        # This simulates the agent on the path.
         m.tracePath({
             a : d,
         },delay=20)
